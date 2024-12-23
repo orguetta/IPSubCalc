@@ -99,7 +99,7 @@
         input {
             padding: 0.5rem 1rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: var (--radius);
             background-color: var(--background);
             color: var(--foreground);
             width: 100%;
@@ -195,7 +195,7 @@
             <button class="version-btn" data-version="ipv6" role="radio" aria-checked="false">IPv6</button>
         </div>
 
-        <div class="input-group">
+        <div class="input-group" id="ipv4-input-group">
             <input type="text" id="ipInput" placeholder="IP Address (e.g., 192.168.1.0)" aria-label="IP Address">
             <select id="maskInput" aria-label="Subnet Mask or CIDR">
                 <option value="32">255.255.255.255 /32</option>
@@ -234,7 +234,7 @@
             <button id="calculate" aria-label="Calculate">Calculate</button>
         </div>
 
-        <div class="input-group">
+        <div class="input-group" id="ipv6-input-group" hidden>
             <input type="text" id="ipInput" placeholder="IPv6 Address (e.g., 2001:db8::)" aria-label="IPv6 Address">
             <select id="prefixInput" aria-label="Prefix Length">
                 <option value="1">/1</option>
@@ -369,7 +369,7 @@
             <button id="calculate" aria-label="Calculate">Calculate</button>
         </div>
 
-        <div class="results" id="results" aria-live="polite">
+        <div class="results" id="results" aria-live="polite" hidden>
             <!-- Results will be populated here -->
         </div>
 
@@ -386,6 +386,8 @@
         const calculateBtn = document.getElementById('calculate');
         const resultsDiv = document.getElementById('results');
         const versionBtns = document.querySelectorAll('.version-btn');
+        const ipv4InputGroup = document.getElementById('ipv4-input-group');
+        const ipv6InputGroup = document.getElementById('ipv6-input-group');
         
         let currentVersion = 'ipv4';
 
@@ -402,6 +404,7 @@
                 currentVersion = btn.dataset.version;
                 updatePlaceholders();
                 clearResults();
+                toggleInputGroups();
             });
         });
 
@@ -419,6 +422,18 @@
 
         function clearResults() {
             resultsDiv.innerHTML = '';
+        }
+
+        function toggleInputGroups() {
+            if (currentVersion === 'ipv4') {
+                ipv4InputGroup.hidden = false;
+                ipv6InputGroup.hidden = true;
+                resultsDiv.hidden = true;
+            } else {
+                ipv4InputGroup.hidden = true;
+                ipv6InputGroup.hidden = false;
+                resultsDiv.hidden = true;
+            }
         }
 
         function isValidIPv4(ip) {
