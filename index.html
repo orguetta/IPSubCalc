@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="IP Subnet Calculator">
+    <meta name="keywords" content="IP Subnet Calculator, IP Subnet, Subnet Calculator, IP Calculator, Subnet Mask Calculator, CIDR Calculator, IP Address Calculator, Subnet Mask, CIDR, IP Address, Subnet, Broadcast Address, Total Hosts, Prefix Length, Network Address, Usable Hosts">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Subnet Calculator</title>
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #020817;
+            --card: #ffffff;
+            --card-foreground: #020817;
+            --popover: #ffffff;
+            --popover-foreground: #020817;
+            --primary: #0f172a;
+            --primary-foreground: #f8fafc;
+            --secondary: #f1f5f9;
+            --secondary-foreground: #0f172a;
+            --muted: #f1f5f9;
+            --muted-foreground: #64748b;
+            --accent: #f1f5f9;
+            --accent-foreground: #0f172a;
+            --destructive: #ef4444;
+            --destructive-foreground: #f8fafc;
+            --border: #e2e8f0;
+            --input: #e2e8f0;
+            --ring: #020817;
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --background: #020817;
+            --foreground: #f8fafc;
+            --card: #020817;
+            --card-foreground: #f8fafc;
+            --popover: #020817;
+            --popover-foreground: #f8fafc;
+            --primary: #f8fafc;
+            --primary-foreground: #0f172a;
+            --secondary: #1e293b;
+            --secondary-foreground: #f8fafc;
+            --muted: #1e293b;
+            --muted-foreground: #94a3b8;
+            --accent: #1e293b;
+            --accent-foreground: #f8fafc;
+            --destructive: #7f1d1d;
+            --destructive-foreground: #f8fafc;
+            --border: #1e293b;
+            --input: #1e293b;
+            --ring: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: var(--card);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: var(--foreground);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background-color: var(--background);
+            color: var(--foreground);
+            width: 100%;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .results {
+            background-color: var(--secondary);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-top: 2rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .version-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .version-btn {
+            background-color: var(--secondary);
+            color: var(--secondary-foreground);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        .version-btn.active {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>IP Subnet Calculator</h1>
+            <button class="theme-toggle" id="themeToggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="version-toggle">
+            <button class="version-btn active" data-version="ipv4">IPv4</button>
+            <button class="version-btn" data-version="ipv6">IPv6</button>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="ipInput" placeholder="IP Address (e.g., 192.168.1.0)">
+            <input type="text" id="maskInput" placeholder="Subnet Mask or CIDR (e.g., 24 or 255.255.255.0)">
+            <button id="calculate">Calculate</button>
+        </div>
+
+        <div class="results" id="results">
+            <!-- Results will be populated here -->
+        </div>
+
+        <div class="footer">
+            
+        </div>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const ipInput = document.getElementById('ipInput');
+        const maskInput = document.getElementById('maskInput');
+        const calculateBtn = document.getElementById('calculate');
+        const resultsDiv = document.getElementById('results');
+        const versionBtns = document.querySelectorAll('.version-btn');
+        
+        let currentVersion = 'ipv4';
+
+        // Theme Toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+        });
+
+        // Version Toggle
+        versionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                versionBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentVersion = btn.dataset.version;
+                updatePlaceholders();
+                clearResults();
+            });
+        });
+
+        function updatePlaceholders() {
+            if (currentVersion === 'ipv4') {
+                ipInput.placeholder = 'IP Address (e.g., 192.168.1.0)';
+                maskInput.placeholder = 'Subnet Mask or CIDR (e.g., 24 or 255.255.255.0)';
+            } else {
+                ipInput.placeholder = 'IPv6 Address (e.g., 2001:db8::)';
+                maskInput.placeholder = 'Prefix Length (e.g., 64)';
+            }
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+
+        function isValidIPv4(ip) {
+            const pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!pattern.test(ip)) return false;
+            return ip.split('.').every(num => parseInt(num) >= 0 && parseInt(num) <= 255);
+        }
+
+        function isValidIPv6(ip) {
+            const pattern = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::$|^::1$|^([0-9a-fA-F]{1,4}:){1,7}:$|^:((:[0-9a-fA-F]{1,4}){1,7}|:)$|^[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})$|^([0-9a-fA-F]{1,4}:){2}((:[0-9a-fA-F]{1,4}){1,5})$|^([0-9a-fA-F]{1,4}:){3}((:[0-9a-fA-F]{1,4}){1,4})$|^([0-9a-fA-F]{1,4}:){4}((:[0-9a-fA-F]{1,4}){1,3})$|^([0-9a-fA-F]{1,4}:){5}((:[0-9a-fA-F]{1,4}){1,2})$|^([0-9a-fA-F]{1,4}:){6}:([0-9a-fA-F]{1,4})$/;
+            return pattern.test(ip);
+        }
+
+        function calculateIPv4Subnet(ip, mask) {
+            const ipParts = ip.split('.').map(Number);
+            let maskBits;
+
+            if (mask.includes('.')) {
+                // Convert subnet mask to CIDR
+                const maskParts = mask.split('.').map(Number);
+                maskBits = maskParts.map(part => part.toString(2).padStart(8, '0')).join('').split('1').length - 1;
+            } else {
+                maskBits = parseInt(mask);
+            }
+
+            const maskArray = new Array(32).fill(0);
+            for (let i = 0; i < maskBits; i++) {
+                maskArray[i] = 1;
+            }
+
+            const networkBinary = ipParts.map(part => part.toString(2).padStart(8, '0')).join('');
+            const networkBits = networkBinary.split('').map((bit, i) => bit & maskArray[i]).join('');
+            
+            const networkAddress = [];
+            for (let i = 0; i < 32; i += 8) {
+                networkAddress.push(parseInt(networkBits.substr(i, 8), 2));
+            }
+
+            const broadcastBits = networkBits.split('').map((bit, i) => {
+                return i < maskBits ? bit : '1';
+            }).join('');
+
+            const broadcastAddress = [];
+            for (let i = 0; i < 32; i += 8) {
+                broadcastAddress.push(parseInt(broadcastBits.substr(i, 8), 2));
+            }
+
+            const totalHosts = Math.pow(2, 32 - maskBits) - 2;
+
+            return {
+                networkAddress: networkAddress.join('.'),
+                broadcastAddress: broadcastAddress.join('.'),
+                totalHosts: totalHosts > 0 ? totalHosts : 0,
+                maskBits,
+                subnetMask: new Array(4).fill(0).map((_, i) => {
+                    const pos = i * 8;
+                    return parseInt(maskArray.slice(pos, pos + 8).join(''), 2);
+                }).join('.'),
+                firstHost: totalHosts > 0 ? incrementIP(networkAddress.join('.')) : networkAddress.join('.'),
+                lastHost: totalHosts > 0 ? decrementIP(broadcastAddress.join('.')) : broadcastAddress.join('.')
+            };
+        }
+
+        function incrementIP(ip) {
+            const parts = ip.split('.').map(Number);
+            parts[3]++;
+            return parts.join('.');
+        }
+
+        function decrementIP(ip) {
+            const parts = ip.split('.').map(Number);
+            parts[3]--;
+            return parts.join('.');
+        }
+
+        function calculateIPv6Subnet(ip, prefixLength) {
+            // Simplified IPv6 calculation
+            const prefix = parseInt(prefixLength);
+            const totalHosts = Math.pow(2, 128 - prefix);
+
+            return {
+                prefix,
+                totalHosts: totalHosts.toExponential(),
+                networkAddress: expandIPv6(ip) + '/' + prefix
+            };
+        }
+
+        function expandIPv6(ip) {
+            // Basic IPv6 expansion (simplified)
+            const parts = ip.split(':');
+            const expanded = parts.map(part => part || '0000').map(part => part.padStart(4, '0'));
+            return expanded.join(':');
+        }
+
+        calculateBtn.addEventListener('click', () => {
+            const ip = ipInput.value.trim();
+            const mask = maskInput.value.trim();
+
+            clearResults();
+
+            if (currentVersion === 'ipv4') {
+                if (!isValidIPv4(ip)) {
+                    alert('Invalid IPv4 address');
+                    return;
+                }
+
+                const results = calculateIPv4Subnet(ip, mask);
+                const resultHTML = `
+                    <div class="result-item">
+                        <span>Network Address:</span>
+                        <span>${results.networkAddress}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Broadcast Address:</span>
+                        <span>${results.broadcastAddress}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>First Usable Host:</span>
+                        <span>${results.firstHost}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Last Usable Host:</span>
+                        <span>${results.lastHost}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Total Usable Hosts:</span>
+                        <span>${results.totalHosts}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Subnet Mask:</span>
+                        <span>${results.subnetMask}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>CIDR Notation:</span>
+                        <span>/${results.maskBits}</span>
+                    </div>
+                `;
+                resultsDiv.innerHTML = resultHTML;
+            } else {
+                if (!isValidIPv6(ip)) {
+                    alert('Invalid IPv6 address');
+                    return;
+                }
+
+                const results = calculateIPv6Subnet(ip, mask);
+                const resultHTML = `
+                    <div class="result-item">
+                        <span>Network Address:</span>
+                        <span>${results.networkAddress}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Total Hosts:</span>
+                        <span>${results.totalHosts}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Prefix Length:</span>
+                        <span>/${results.prefix}</span>
+                    </div>
+                `;
+                resultsDiv.innerHTML = resultHTML;
+            }
+        });
+    </script>
+</body>
+</html>
